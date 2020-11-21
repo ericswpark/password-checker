@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password check</title>
+
+    <style>
+        html {
+            margin: 40px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Password Checker</h1>
+
+    <p><b>Warning!</b> This tool was made irresponsibly, in 40 minutes, on a Saturday evening.<br>
+        Therefore, the results shown here may be completely inaccurate.<br>
+        I'm not responsible for any problems that may arise from the use of this website.<br>
+        Please take the result as a reference. Use a password manager.
+    </p>
+
+    <p>Note that the results here are automatically <strong>invalid</strong> if the password has been leaked before.</p>
+
+    <h4>Step 1: Does your password include...</h4>
+    <input type="checkbox" name="alphabet_lowercase" id="alphabet_lowercase" value="lowercase-alphabets" oninput="calculate()" checked>
+    <label for="alphabet_lowercase"> Lowercase alphabets</label><br>
+    <input type="checkbox" name="alphabet_uppercase" id="alphabet_uppercase" value="uppercase-alphabets" oninput="calculate()">
+    <label for="alphabet_uppercase"> Uppercase alphabets</label><br>
+    <input type="checkbox" name="numbers" id="numbers" value="numbers" oninput="calculate()" checked>
+    <label for="numbers"> Numbers 0-9</label><br>
+    <input type="checkbox" name="special_characters" id="special_characters" value="special-characters" oninput="calculate()">
+    <label for="special_characters"> Special characters</label><br>
+
+    <p>Note: we assume that sites will generally accept around 30 special character sets.</p>
+
+
+    <h4>Step 2: How long is your password?</h4>
+    <input type="range" name="password_length" id="password_length" min="4" max="100" step="1" value="10" style="width: 500px;" oninput="calculate(); changeSliderVal()">
+    <label for="password_length" id="password_length_label"> 10</label>
+
+
+    <h4>Step 3: How much computational power? (Guesses per second)</h4>
+    <input type="radio" id="one_billion" name="computational_power" value="one_billion" oninput="calculate()" checked>
+    <label for="one_billion"> One billion (Reported rate in 2019)</label><br>
+    <input type="radio" id="one_trillion" name="computational_power" value="one_trillion" oninput="calculate()">
+    <label for="one_trillion"> One trillion (Snowden prediction in 2014)</label><br>
+    <input type="radio" id="one_hundred_trillion" name="computational_power" value="one_hundred_trillion" oninput="calculate()">
+    <label for="one_hundred_trillion"> One hundred trillion (Insanity mode)</label><br>
+
+    <h3 id="result_view">Result: </h3>
+
+    <script src="moment.min.js"></script>
+
+    <script>
+        let lowercaseAlphabets = document.getElementById("alphabet_lowercase");
+        let uppercaseAlphabets = document.getElementById("alphabet_uppercase");
+        let numbers = document.getElementById("numbers");
+        let specialCharacters = document.getElementById("special_characters");
+        let passwordLength = document.getElementById("password_length");
+        let oneBillion = document.getElementById("one_billion");
+        let oneTrillion = document.getElementById("one_trillion");
+        let oneHundredTrillion = document.getElementById("one_hundred_trillion");
+        let resultView = document.getElementById("result_view");
+        
+        function calculate() {
+            // Check step 1
+            var combinations = 0;
+
+            if(lowercaseAlphabets.checked === true) {
+                combinations += 26;
+            }
+
+            if(uppercaseAlphabets.checked === true) {
+                combinations += 26;
+            }
+
+            if(numbers.checked === true) {
+                combinations += 10;
+            }
+
+            if(specialCharacters.checked === true) {
+                combinations += 30;
+            }
+
+            if(combinations === 0) {
+                // All unchecked, set result to nothing
+                resultView.innerText = "Result: ";
+                return;
+            }
+
+            // Calculate password strength
+            let passwordSpace = Math.pow(combinations, passwordLength.value);
+            let time;
+            if (oneBillion.checked === true) {
+                time = passwordSpace / 1000000000;
+            } else if (oneTrillion.checked === true) {
+                time = passwordSpace / 1000000000000;
+            } else if (oneHundredTrillion.checked === true) {
+                time = passwordSpace / 100000000000000;
+            }
+
+            var date = new Date(0);
+            date.setSeconds(time.toFixed(0));
+            var timeString = date.toTimeString();
+
+            resultView.innerText = "Result: It would take about " + moment.duration(time.toFixed(0)).humanize() + " to crack your password.";
+        }
+
+        function changeSliderVal() {
+            document.getElementById("password_length_label").innerText = " " + passwordLength.value;
+        }
+
+        // initial calculation
+        calculate();
+    </script>
+
+    
+</body>
+</html>
